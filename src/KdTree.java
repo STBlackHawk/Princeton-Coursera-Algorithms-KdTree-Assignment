@@ -1,6 +1,7 @@
 import edu.princeton.cs.algs4.SET;
 import  edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.RectHV;
+import edu.princeton.cs.algs4.StdDraw;
 import org.w3c.dom.css.Rect;
 
 import java.util.TreeSet;
@@ -67,31 +68,87 @@ public class KdTree {
 
     public  boolean contains(Point2D p){
             if (p == null) throw new IllegalArgumentException("Point should not be null");
-            return contains(root, p, root.rotation);
+            return contains(root, p);
     }// does the set contain point p?
-    private boolean contains( Node n, Point2D p, boolean rotation){
+    private boolean contains( Node n, Point2D p){
             if (n == null ) return false;
             if (n.point.equals(p)) return true;
             if (!n.rotation){
-                if (p.y() < n.point.y()) contains(n.lb, p,n.rotation);
-                else contains(n.rt, p, n.rotation);
+                if (p.y() < n.point.y()) contains(n.lb, p);
+                else contains(n.rt, p);
             }
             else {
-                if (p.x() < n.point.x()) contains(n.lb, p,n.rotation);
-                else contains(n.rt, p, n.rotation);
+                if (p.x() < n.point.x()) contains(n.lb, p);
+                else contains(n.rt, p);
 
             }
+            return false;
+    }
 
+    public void draw(){ }// draw all points to standard draw
+    private void draw(Node n) {
+        while (n != null) {
+            StdDraw.setPenColor(StdDraw.BLACK);
+            StdDraw.setPenRadius(0.01);
+            n.point.draw();
+            if (n.rotation) {
+                StdDraw.setPenColor(StdDraw.RED);
+                StdDraw.setPenRadius();
+                n.rect.draw();
+            } else {
+                StdDraw.setPenColor(StdDraw.BLUE);
+                StdDraw.setPenRadius();
+                n.rect.draw();
+            }
+            draw(n.lb);
+            draw(n.rt);
 
+        }
+    }
+
+    public Iterable<Point2D> range(RectHV rect){
+            return range(rect, root);
+    }// all points that are inside the rectangle (or on the boundary)
+    private Iterable<Point2D> range (RectHV rect, Node n){
+            SET<Point2D> Points = new SET<Point2D>();
+            if (n.rect.intersects(rect)){
+                if (rect.contains(n.point)) Points.add(n.point);
+                range(rect, n.lb);
+                range(rect, n.rt);
+
+            }
+            return Points;
 
     }
 
-    public  void draw(){}                         // draw all points to standard draw
+    public    Point2D nearest(Point2D p){
+            return nearest(p, root);
+    }             // a nearest neighbor in the set to point p; null if the set is empty
+    private Point2D nearest(Point2D p, Node n){
+            Point2D nearest;
+            double min = n.point.distanceSquaredTo(p);
+            nearest = n.point;
+            if(root.lb.rect.distanceSquaredTo(p) < min){
+                 Point2D lb =  nearest(p, n.lb);
+                 double dist = lb.distanceSquaredTo(p);
+                 if (dist < min){
+                     min = dist;
+                     nearest = lb;
+                 }
+            }
+            if(root.rt.rect.distanceSquaredTo(p) < min){
+            Point2D rt =  nearest(p, n.rt);
+                double dist = rt.distanceSquaredTo(p);
+                if (dist < min ) {
+                    min = dist;
+                    nearest = rt;
+                }
+            }
 
-    public Iterable<Point2D> range(RectHV rect){return null;}             // all points that are inside the rectangle (or on the boundary)
+            return nearest;
 
-    public    Point2D nearest(Point2D p){return null;}             // a nearest neighbor in the set to point p; null if the set is empty
 
+    }
 
     public static void main(String[] args) {}           // unit testing of the methods (optional)
 
