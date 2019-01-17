@@ -15,10 +15,11 @@ public class KdTree {
                 private boolean rotation;
                 private int size;
 
-                public Node(Point2D p, RectHV rect, boolean rotation){
+                public Node(Point2D p, RectHV rect, boolean rotation, int size){
                     this.point = p;
                     this.rect = rect;
                     this.rotation = rotation;
+                    this.size = size;
 
                 }
 
@@ -41,16 +42,15 @@ public class KdTree {
 
     public void insert(Point2D p){
             if (p == null) throw new IllegalArgumentException("Point should not be null");
-//            RectHV rect = new RectHV(0,0,1,1);
-//            if (isEmpty()) root = new Node(p, rect, true);
-//            else
+
             root = insert(root, p, false, 0,0,1,1);
     }
     private Node insert(Node n, Point2D p, boolean rotation, double xmin, double ymin, double xmax, double ymax){
             if (n == null){
                 RectHV rect = new RectHV(xmin, ymin, xmax,ymax);
-                return new Node(p, rect,!rotation);
+                return new Node(p, rect,!rotation, 1);
             }
+            if (n.point.equals(p)) return n;
 
             if (!n.rotation){
                 if (p.y() < n.point.y()) n.lb = insert(n.lb, p, n.rotation,n.rect.xmin(), n.rect.ymin(), n.rect.xmax(),n.point.y());
@@ -59,7 +59,6 @@ public class KdTree {
             else {
                 if (p.x() < n.point.x()) n.lb = insert(n.lb, p, n.rotation, n.rect.xmin(), n.rect.ymin(),n.point.x(), n.rect.ymax() );
                 else n.rt = insert(n.rt, p, n.rotation,n.point.x(), n.rect.ymin(),n.rect.xmax(), n.rect.ymax());
-
             }
             n.size = 1+ size(n.rt) +  size(n.lb);
             return n;
@@ -106,39 +105,42 @@ public class KdTree {
     }
 
     public Iterable<Point2D> range(RectHV rect){
-            return range(rect, root);
+             range(rect, root);
+             return Points;
     }// all points that are inside the rectangle (or on the boundary)
-    private Iterable<Point2D> range (RectHV rect, Node n){
-            SET<Point2D> Points = new SET<Point2D>();
+
+    private SET<Point2D> Points = new SET<>();
+    private void range (RectHV rect, Node n){
             if (n.rect.intersects(rect)){
                 if (rect.contains(n.point)) Points.add(n.point);
-                range(rect, n.lb);
-                range(rect, n.rt);
+                if (n.lb != null) range(rect, n.lb);
+                if (n.rt != null) range(rect, n.rt);
 
             }
-            return Points;
-
     }
 
     public    Point2D nearest(Point2D p){
-            return nearest(p, root);
+        if (p == null) throw new IllegalArgumentException();
+        return nearest(p, root);
     }             // a nearest neighbor in the set to point p; null if the set is empty
     private Point2D nearest(Point2D p, Node n){
+
             Point2D nearest;
             double min = n.point.distanceSquaredTo(p);
             nearest = n.point;
-            if(root.lb.rect.distanceSquaredTo(p) < min){
-                 Point2D lb =  nearest(p, n.lb);
-                 double dist = lb.distanceSquaredTo(p);
-                 if (dist < min){
-                     min = dist;
-                     nearest = lb;
-                 }
+
+            if (n.lb !=null && n.lb.rect.distanceSquaredTo(p) < min) {
+                Point2D lb = nearest(p, n.lb);
+                double dist = lb.distanceSquaredTo(p);
+                if (dist < min) {
+                    min = dist;
+                    nearest = lb;
+                }
             }
-            if(root.rt.rect.distanceSquaredTo(p) < min){
-            Point2D rt =  nearest(p, n.rt);
+            if (n.rt!=null && n.rt.rect.distanceSquaredTo(p) < min) {
+                Point2D rt = nearest(p, n.rt);
                 double dist = rt.distanceSquaredTo(p);
-                if (dist < min ) {
+                if (dist < min) {
                     min = dist;
                     nearest = rt;
                 }
@@ -147,10 +149,10 @@ public class KdTree {
             return nearest;
 
 
+
     }
 
     public static void main(String[] args){
-
 
     }           // unit testing of the methods (optional)
 
