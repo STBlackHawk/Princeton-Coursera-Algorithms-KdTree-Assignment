@@ -72,15 +72,15 @@ public class KdTree {
             if (n == null ) return false;
             if (n.point.equals(p)) return true;
             if (!n.rotation){
-                if (p.y() < n.point.y()) contains(n.lb, p);
-                else contains(n.rt, p);
+                if (p.y() < n.point.y()) return contains(n.lb, p);
+                else return contains(n.rt, p);
             }
             else {
-                if (p.x() < n.point.x()) contains(n.lb, p);
-                else contains(n.rt, p);
+                if (p.x() < n.point.x()) return contains(n.lb, p);
+                else return contains(n.rt, p);
 
             }
-            return false;
+
     }
 
     public void draw(){ }// draw all points to standard draw
@@ -105,6 +105,7 @@ public class KdTree {
     }
 
     public Iterable<Point2D> range(RectHV rect){
+        if (rect == null) throw new IllegalArgumentException("Rect should not be null");
              range(rect, root);
              return Points;
     }// all points that are inside the rectangle (or on the boundary)
@@ -126,12 +127,12 @@ public class KdTree {
     private Point2D nearest(Point2D p, Node n){
 
             Point2D nearest;
-            double min = n.point.distanceSquaredTo(p);
+            double min = n.point.distanceTo(p);
             nearest = n.point;
 
-            if (n.lb !=null && n.lb.rect.distanceSquaredTo(p) < min) {
+            if (n.lb !=null && n.lb.rect.distanceTo(p) < min) {
                 Point2D lb = nearest(p, n.lb);
-                double dist = lb.distanceSquaredTo(p);
+                double dist = lb.distanceTo(p);
                 if (dist < min) {
                     min = dist;
                     nearest = lb;
@@ -139,7 +140,7 @@ public class KdTree {
             }
             if (n.rt!=null && n.rt.rect.distanceSquaredTo(p) < min) {
                 Point2D rt = nearest(p, n.rt);
-                double dist = rt.distanceSquaredTo(p);
+                double dist = rt.distanceTo(p);
                 if (dist < min) {
                     min = dist;
                     nearest = rt;
@@ -147,6 +148,7 @@ public class KdTree {
             }
 
             return nearest;
+
 
 
 

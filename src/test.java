@@ -11,27 +11,29 @@ public class test {
 
     public static void main(String[] args) throws FileNotFoundException {
 
-        File file = new File("test");
+        File file = new File("test3");
         Scanner sc = new Scanner(file);
         KdTree tree = new KdTree();
         PointSET set = new PointSET();
-        RectHV rect1 = new RectHV(0.3125,0.6875,0.375,1);
+       RectHV rect1 = new RectHV(0.46, 0.07,0.7, 0.74);
         while(sc.hasNextLine()){
             Point2D p = new Point2D(sc.nextDouble(), sc.nextDouble());
             tree.insert(p);
 //           System.out.println(tree.size());
             set.insert(p);
         }
-        Point2D p = new Point2D(0.71875, 0.71875);
-        Point2D test = tree.nearest(p);
-        System.out.println(test);
-        System.out.println(tree.contains(p));
-//        Iterable<Point2D> testset1 = set.range(rect1);
+//        Point2D p = new Point2D(0.19, 0.56);
+//        System.out.println(tree.contains(p));
+
+//        Point2D test = tree.nearest(p);
+//        System.out.println(test);
+//        System.out.println(tree.contains(p));
+       Iterable<Point2D> testset = tree.range(rect1);
 //
-//        for (Point2D p : testset){
-//
-//            System.out.println(p);
-//        }
+        for (Point2D p : testset){
+
+            System.out.println(p);
+        }
 //        Point2D p = new Point2D(0.144, 0.179);
 //        System.out.println(tree.contains(p));
 //        System.out.println(set.contains(p));
