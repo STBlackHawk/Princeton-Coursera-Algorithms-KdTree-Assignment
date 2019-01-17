@@ -2,15 +2,12 @@ import edu.princeton.cs.algs4.SET;
 import  edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.RectHV;
 import edu.princeton.cs.algs4.StdDraw;
-import org.w3c.dom.css.Rect;
 
-import java.util.TreeSet;
 
 public class KdTree {
-        private TreeSet<Node> Tree;
+    private Node root;
 
-
-        private static class Node{
+    private static class Node {
                 private Point2D point;
                 private RectHV rect;
                 private Node lb;
@@ -26,26 +23,30 @@ public class KdTree {
                 }
 
 
-        }
-
-        private Node root;
+    }
 
 
-        public  KdTree(){
-        }// construct an empty set of points
+
+    public  KdTree(){}// construct an empty set of points
 
 
     public  boolean isEmpty(){return size() == 0;}                      // is the set empty?
 
-    public  int size(){return root.size;}                         // number of points in the set
+    public  int size(){return size(root);}
 
-    public void insert(Point2D p) {
+    private int size(Node n){
+        if (n == null) return 0;
+        return n.size;
+    }// number of points in the set
+
+    public void insert(Point2D p){
             if (p == null) throw new IllegalArgumentException("Point should not be null");
-
-            root = insert(root, p, root.rotation, 0,0,1,1);
-
-        }
-        private Node insert(Node n, Point2D p, boolean rotation, double xmin, double ymin, double xmax, double ymax){
+//            RectHV rect = new RectHV(0,0,1,1);
+//            if (isEmpty()) root = new Node(p, rect, true);
+//            else
+            root = insert(root, p, false, 0,0,1,1);
+    }
+    private Node insert(Node n, Point2D p, boolean rotation, double xmin, double ymin, double xmax, double ymax){
             if (n == null){
                 RectHV rect = new RectHV(xmin, ymin, xmax,ymax);
                 return new Node(p, rect,!rotation);
@@ -60,11 +61,9 @@ public class KdTree {
                 else n.rt = insert(n.rt, p, n.rotation,n.point.x(), n.rect.ymin(),n.rect.xmax(), n.rect.ymax());
 
             }
-            n.size = 1+ n.rt.size + n.lb.size;
+            n.size = 1+ size(n.rt) +  size(n.lb);
             return n;
-
-
-        }              // add the point to the set (if it is not already in the set)
+    }              // add the point to the set (if it is not already in the set)
 
     public  boolean contains(Point2D p){
             if (p == null) throw new IllegalArgumentException("Point should not be null");
@@ -150,6 +149,9 @@ public class KdTree {
 
     }
 
-    public static void main(String[] args) {}           // unit testing of the methods (optional)
+    public static void main(String[] args){
+
+
+    }           // unit testing of the methods (optional)
 
 }
